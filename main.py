@@ -1,8 +1,9 @@
+import pygame
 import sys
 import os
 import random
 import math
-import pygame
+
 sss = "map.txt"
 
 
@@ -109,6 +110,9 @@ tile_images = {
     'wall': load_image('box.png'),
     'empty': load_image('grass4.png')
 }
+crystal_images = {
+    "blue": load_image("blue_kristal.png", 1)
+}
 player_image = load_image('mar.png')
 
 tile_width = tile_height = 50
@@ -121,6 +125,7 @@ box_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 enemy_weapon_group = pygame.sprite.Group()
 player_weapon_group = pygame.sprite.Group()
+crystal_group = pygame.sprite.Group()
 
 
 # создания уровня на вход подаёться список созданный в функии load_level()
@@ -147,6 +152,17 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
         if tile_type == "wall":
             self.add(box_group)
+
+
+class Crystal(pygame.sprite.Sprite):
+    def __init__(self, crystal_type, pos_x, pos_y):
+        super().__init__(crystal_group, all_sprites)
+        self.image = crystal_images[crystal_type]
+        self.image = pygame.transform.scale(self.image, (20, 20))
+        self.rect = self.image.get_rect().move(pos_x, pos_y)
+        self.price = 0
+        if crystal_type == "blue":
+            self.price = 10
 
 
 # класс ножа игрока
@@ -240,19 +256,70 @@ class Poo(pygame.sprite.Sprite):
         self.rect.y = self.y
 
 
-# класс врага
-class Enemy(pygame.sprite.Sprite):
+# класс врага2
+class Enemy1(pygame.sprite.Sprite):
     image = load_image("kobakov.png", 1)
 
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
-        self.image = Enemy.image
+        self.image = Enemy1.image
+        self.image = pygame.transform.scale(self.image, (45, 45))
+        self.rect = self.image.get_rect().move(pos_x, pos_y)
+        self.move_speed = 2
+        self.x = self.rect.x
+        self.y = self.rect.y
+        self.hp = 10
+
+    def update(self):
+        self.t = ((abs(self.rect.x - player.rect.x) ** 2 + abs(
+            self.rect.y - player.rect.y) ** 2) ** 0.5 - 12) / self.move_speed
+        if self.t == 0:
+            self.t = 0.000001
+        self.move_x = (self.rect.x - player.rect.x) / self.t
+        self.move_y = (self.rect.y - player.rect.y) / self.t
+
+        self.x += -self.move_x
+        self.rect.x = self.x
+
+        if pygame.sprite.spritecollideany(self, box_group) or len(
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+            if self.move_x > 0:
+                self.x -= -(self.move_x + 1)
+            if self.move_x < 0:
+                self.x -= -(self.move_x - 1)
+        self.y += -self.move_y
+        self.rect.y = self.y
+        if pygame.sprite.spritecollideany(self, box_group) or len(
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+            self.y -= -(self.move_y)
+
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        st = pygame.sprite.spritecollideany(self, player_weapon_group)
+        if st:
+            self.hp -= st.damage
+            st.kill()
+
+        if self.hp <= 0:
+            if not random.randint(0, 3):
+                Crystal("blue",self.x,self.y)
+            self.kill()
+
+
+# класс врага2
+class Enemy2(pygame.sprite.Sprite):
+    image = load_image("creature.png", 1)
+
+    def __init__(self, pos_x, pos_y):
+        super().__init__(enemy_group, all_sprites)
+        self.image = Enemy2.image
         self.image = pygame.transform.scale(self.image, (45, 45))
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.move_speed = 1
         self.x = self.rect.x
         self.y = self.rect.y
-        self.hp = 10
+        self.hp = 20
 
     def update(self):
 
@@ -260,20 +327,24 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.y - player.rect.y) ** 2) ** 0.5 - 12) / self.move_speed
         if self.t == 0:
             self.t = 0.000001
-        self.move_x = abs(self.rect.x - player.rect.x) / self.t
-        self.move_y = abs(self.rect.y - player.rect.y) / self.t
+        self.move_x = (self.rect.x - player.rect.x) / self.t
+        self.move_y = (self.rect.y - player.rect.y) / self.t
 
-        if self.rect.x - player.rect.x == -12 or self.rect.x - player.rect.x == -13:
-            pass
-        else:
-            if self.rect.x - player.rect.x + 12 < 0:
-                self.x += self.move_x
-            else:
-                self.x -= self.move_x
-        if self.rect.y - player.rect.y < 0:
-            self.y += self.move_y
-        else:
-            self.y -= self.move_y
+        self.x += -self.move_x
+        self.rect.x = self.x
+
+        if pygame.sprite.spritecollideany(self, box_group) or len(
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+            if self.move_x > 0:
+                self.x -= -(self.move_x + 1)
+            if self.move_x < 0:
+                self.x -= -(self.move_x - 1)
+        self.y += -self.move_y
+        self.rect.y = self.y
+        if pygame.sprite.spritecollideany(self, box_group) or len(
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+            self.y -= -(self.move_y)
+
         self.rect.x = self.x
         self.rect.y = self.y
 
@@ -287,6 +358,8 @@ class Enemy(pygame.sprite.Sprite):
                 Poo(self.rect.x + 7, self.rect.y + 7)
 
         if self.hp <= 0:
+            if not random.randint(0, 4):
+                Crystal("blue",self.x,self.y)
             self.kill()
 
 
@@ -298,6 +371,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.hp = 100
         self.weapon_kd = 0
+        self.exp = 0
 
     def move(self, x, y):
         self.rect.x += x
@@ -317,6 +391,11 @@ class Player(pygame.sprite.Sprite):
             self.hp -= st.damage
             st.kill()
 
+        st = pygame.sprite.spritecollideany(self, crystal_group)
+        if st:
+            self.exp += st.price
+            st.kill()
+
         if self.weapon_kd < FPS * 2:
             self.weapon_kd += 1
         pygame.draw.rect(screen, "grey", (self.rect.x - 13, self.rect.y + 50, 50, 10))
@@ -326,6 +405,8 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, "yellow",
                          (self.rect.x - 13, self.rect.y + 50 + 20, 50 * (self.weapon_kd / (FPS * 2)), 10))
 
+        pygame.draw.rect(screen, "grey", (5, height - 30, width - 10, 25))
+        pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / 100) * (width - 10), 25))
         if self.hp <= 0:
             self.kill()
 
@@ -365,9 +446,10 @@ if __name__ == '__main__':
     start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
-    for i in range(20):
-        Enemy(random.randint(0, 31) * 50, random.randint(0, 21) * 50)
-    player = Player(18 * 50, 10 * 50)
+    for i in range(1):
+        Enemy1(random.randint(6, 25) * 50, random.randint(6, 15) * 50)
+        Enemy2(random.randint(6, 25) * 50, random.randint(6, 15) * 50)
+    player = Player(16 * 50, 10 * 50)
     font = pygame.font.Font(None, 36)
     fps_counter = FPSCounter(screen, font, clock, "green", (40, 10))
     running = True
@@ -405,6 +487,7 @@ if __name__ == '__main__':
         enemy_group.update()
         enemy_weapon_group.update()
         player_weapon_group.update()
+        crystal_group.update()
         # ---------------------------------------------
         all_sprites.draw(screen)
         player.update()
