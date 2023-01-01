@@ -29,7 +29,7 @@ class FPSCounter:
 
 FPS = 30
 pygame.init()
-size = width, height = 550, 550
+size = width, height = 800, 800
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
@@ -43,7 +43,7 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     if colorkey is not None:
         image = image.convert()
-        if colorkey == 1:
+        if colorkey == -1:
             colorkey = image.get_at((0, 0))
         image.set_colorkey(colorkey)
     else:
@@ -111,7 +111,13 @@ tile_images = {
     'empty': load_image('grass4.png')
 }
 crystal_images = {
-    "blue": load_image("blue_kristal.png", 1)
+    "blue": load_image("blue_crystal.png"),
+    "gray": load_image("gray_crystal.png"),
+    "green": load_image("green_crystal.png"),
+    "purple": load_image("purple_crystal.png"),
+    "light_blue": load_image("light_blue_crystal.png"),
+    "red": load_image("red_crystal.png"),
+    "yellow": load_image("yellow_crystal.png")
 }
 player_image = load_image('mar.png')
 
@@ -158,16 +164,20 @@ class Crystal(pygame.sprite.Sprite):
     def __init__(self, crystal_type, pos_x, pos_y):
         super().__init__(crystal_group, all_sprites)
         self.image = crystal_images[crystal_type]
-        self.image = pygame.transform.scale(self.image, (20, 20))
+        self.image = pygame.transform.scale(self.image, (30, 30))
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.price = 0
-        if crystal_type == "blue":
+        if crystal_type == "light_blue":
             self.price = 10
+        if crystal_type == "blue":
+            self.price = 20
+        if crystal_type == "purple":
+            self.price = 50
 
 
 # класс ножа игрока
 class Knife(pygame.sprite.Sprite):
-    image = load_image("knife.png", 1)
+    image = load_image("knife.png", -1)
 
     def __init__(self, pos):
         super().__init__(player_weapon_group, all_sprites)
@@ -216,7 +226,7 @@ class Knife(pygame.sprite.Sprite):
 
 # класс снарядов врагов
 class Poo(pygame.sprite.Sprite):
-    image = load_image("poo.png", 1)
+    image = load_image("poo.png", -1)
 
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_weapon_group, all_sprites)
@@ -258,7 +268,7 @@ class Poo(pygame.sprite.Sprite):
 
 # класс врага2
 class Enemy1(pygame.sprite.Sprite):
-    image = load_image("kobakov.png", 1)
+    image = load_image("kobakov.png", -1)
 
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
@@ -269,8 +279,12 @@ class Enemy1(pygame.sprite.Sprite):
         self.x = self.rect.x
         self.y = self.rect.y
         self.hp = 10
+        self.damage = 10
+        self.damage_kd = 0
 
     def update(self):
+        if self.damage_kd < 30:
+            self.damage_kd += 1
         self.t = ((abs(self.rect.x - player.rect.x) ** 2 + abs(
             self.rect.y - player.rect.y) ** 2) ** 0.5 - 12) / self.move_speed
         if self.t == 0:
@@ -281,16 +295,27 @@ class Enemy1(pygame.sprite.Sprite):
         self.x += -self.move_x
         self.rect.x = self.x
 
+        if pygame.sprite.spritecollideany(self, player_group) and self.damage_kd == 30:
+            player.hp -= self.damage
+            self.damage_kd = 0
+
         if pygame.sprite.spritecollideany(self, box_group) or len(
-                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1 or pygame.sprite.spritecollideany(self,
+                                                                                                             player_group):
             if self.move_x > 0:
                 self.x -= -(self.move_x + 1)
             if self.move_x < 0:
                 self.x -= -(self.move_x - 1)
         self.y += -self.move_y
         self.rect.y = self.y
+
+        if pygame.sprite.spritecollideany(self, player_group) and self.damage_kd == 30:
+            player.hp -= self.damage
+            self.damage_kd = 0
+
         if pygame.sprite.spritecollideany(self, box_group) or len(
-                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1 or pygame.sprite.spritecollideany(self,
+                                                                                                             player_group):
             self.y -= -(self.move_y)
 
         self.rect.x = self.x
@@ -303,13 +328,13 @@ class Enemy1(pygame.sprite.Sprite):
 
         if self.hp <= 0:
             if not random.randint(0, 3):
-                Crystal("blue",self.x,self.y)
+                Crystal("light_blue", self.x, self.y)
             self.kill()
 
 
 # класс врага2
 class Enemy2(pygame.sprite.Sprite):
-    image = load_image("creature.png", 1)
+    image = load_image("creature.png", -1)
 
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
@@ -320,9 +345,12 @@ class Enemy2(pygame.sprite.Sprite):
         self.x = self.rect.x
         self.y = self.rect.y
         self.hp = 20
+        self.damage = 20
+        self.damage_kd = 0
 
     def update(self):
-
+        if self.damage_kd < 30:
+            self.damage_kd += 1
         self.t = ((abs(self.rect.x - player.rect.x) ** 2 + abs(
             self.rect.y - player.rect.y) ** 2) ** 0.5 - 12) / self.move_speed
         if self.t == 0:
@@ -332,17 +360,26 @@ class Enemy2(pygame.sprite.Sprite):
 
         self.x += -self.move_x
         self.rect.x = self.x
+        if pygame.sprite.spritecollideany(self, player_group) and self.damage_kd == 30:
+            player.hp -= self.damage
+            self.damage_kd = 0
 
         if pygame.sprite.spritecollideany(self, box_group) or len(
-                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1 or pygame.sprite.spritecollideany(self,
+                                                                                                             player_group):
             if self.move_x > 0:
                 self.x -= -(self.move_x + 1)
             if self.move_x < 0:
                 self.x -= -(self.move_x - 1)
+
+        if pygame.sprite.spritecollideany(self, player_group) and self.damage_kd == 30:
+            player.hp -= self.damage
+            self.damage_kd = 0
         self.y += -self.move_y
         self.rect.y = self.y
         if pygame.sprite.spritecollideany(self, box_group) or len(
-                pygame.sprite.spritecollide(self, enemy_group, False)) > 1:
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1 or pygame.sprite.spritecollideany(self,
+                                                                                                             player_group):
             self.y -= -(self.move_y)
 
         self.rect.x = self.x
@@ -359,10 +396,11 @@ class Enemy2(pygame.sprite.Sprite):
 
         if self.hp <= 0:
             if not random.randint(0, 4):
-                Crystal("blue",self.x,self.y)
+                Crystal("blue", self.x, self.y)
             self.kill()
 
 
+spisok_level = [0,50,150,300,500]
 # класс игрока
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -372,11 +410,12 @@ class Player(pygame.sprite.Sprite):
         self.hp = 100
         self.weapon_kd = 0
         self.exp = 0
+        self.level = 1
 
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
-        if pygame.sprite.spritecollideany(self, box_group) or pygame.sprite.spritecollideany(self, enemy_group):
+        if pygame.sprite.spritecollideany(self, box_group):
             self.rect.x -= x
             self.rect.y -= y
 
@@ -386,15 +425,15 @@ class Player(pygame.sprite.Sprite):
             self.weapon_kd = 0
 
     def update(self):
-        st = pygame.sprite.spritecollideany(self, enemy_weapon_group)
-        if st:
-            self.hp -= st.damage
-            st.kill()
+        st1 = pygame.sprite.spritecollideany(self, enemy_weapon_group)
+        if st1:
+            self.hp -= st1.damage
+            st1.kill()
 
-        st = pygame.sprite.spritecollideany(self, crystal_group)
-        if st:
-            self.exp += st.price
-            st.kill()
+        st3 = pygame.sprite.spritecollideany(self, crystal_group)
+        if st3:
+            self.exp += st3.price
+            st3.kill()
 
         if self.weapon_kd < FPS * 2:
             self.weapon_kd += 1
@@ -405,8 +444,14 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, "yellow",
                          (self.rect.x - 13, self.rect.y + 50 + 20, 50 * (self.weapon_kd / (FPS * 2)), 10))
 
+        if self.exp >= spisok_level[self.level]:
+            self.level += 1
+            self.exp -= spisok_level[self.level - 1]
+        print(self.level)
+
         pygame.draw.rect(screen, "grey", (5, height - 30, width - 10, 25))
-        pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / 100) * (width - 10), 25))
+        pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
+
         if self.hp <= 0:
             self.kill()
 
@@ -446,9 +491,9 @@ if __name__ == '__main__':
     start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
-    for i in range(1):
-        Enemy1(random.randint(6, 25) * 50, random.randint(6, 15) * 50)
-        Enemy2(random.randint(6, 25) * 50, random.randint(6, 15) * 50)
+    for i in range(10):
+        Enemy1(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
+        Enemy2(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
     player = Player(16 * 50, 10 * 50)
     font = pygame.font.Font(None, 36)
     fps_counter = FPSCounter(screen, font, clock, "green", (40, 10))
@@ -459,6 +504,9 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 player.shot(event.pos)
+            if event.type == pygame.KEYDOWN:
+                if list(pygame.key.get_pressed())[41] == True:
+                    start_screen()
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
