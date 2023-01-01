@@ -400,6 +400,7 @@ class Enemy2(pygame.sprite.Sprite):
             self.kill()
 
 
+
 spisok_level = [0,50,150,300,500]
 # класс игрока
 class Player(pygame.sprite.Sprite):
