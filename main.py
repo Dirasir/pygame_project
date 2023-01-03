@@ -33,7 +33,7 @@ pygame.init()
 size = width, height = 800, 800
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
-kills_count = 0
+
 
 # функиця загрузки изображения при вводе 1 удаляется фон
 def load_image(name, colorkey=None):
@@ -298,6 +298,7 @@ class Enemy1(pygame.sprite.Sprite):
         if self.hp <= 0:
             if not random.randint(0, 3):
                 Crystal("light_blue", self.x, self.y)
+            player.kills_count += 1
             self.kill()
 
 
@@ -366,6 +367,7 @@ class Enemy2(pygame.sprite.Sprite):
         if self.hp <= 0:
             if not random.randint(0, 4):
                 Crystal("blue", self.x, self.y)
+            player.kills_count += 1
             self.kill()
 
 
@@ -381,6 +383,7 @@ class Player(pygame.sprite.Sprite):
         self.weapon_kd = 0
         self.exp = 0
         self.level = 1
+        self.kills_count = 0
 
     def move(self, x, y):
         self.rect.x += x
@@ -423,6 +426,7 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
 
         if self.hp <= 0:
+            notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
             self.kill()
 
 
@@ -477,8 +481,6 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
                     notmain.Interface(size, screen).start_screen()
-            if player.hp == 0:
-                notmain.Interface(size, screen).end_screen(player.level, kills_count)
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
