@@ -477,8 +477,8 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
                     notmain.Interface(size, screen).start_screen()
-        if player.hp <= 0:
-            notmain.Interface(size, screen).end_screen(player.level, kills_count)
+            if player.hp == 0:
+                notmain.Interface(size, screen).end_screen(player.level, kills_count)
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
