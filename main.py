@@ -299,6 +299,7 @@ class Enemy1(pygame.sprite.Sprite):
             if not random.randint(0, 3):
                 Crystal("light_blue", self.x, self.y)
             self.kill()
+            player.kills_count += 1
 
 
 
@@ -367,7 +368,7 @@ class Enemy2(pygame.sprite.Sprite):
             if not random.randint(0, 4):
                 Crystal("blue", self.x, self.y)
             self.kill()
-
+            player.kills_count += 1
 
 
 spisok_level = [0,50,150,300,500]
@@ -381,6 +382,7 @@ class Player(pygame.sprite.Sprite):
         self.weapon_kd = 0
         self.exp = 0
         self.level = 1
+        self.kills_count = 0
 
     def move(self, x, y):
         self.rect.x += x
@@ -399,6 +401,7 @@ class Player(pygame.sprite.Sprite):
         if st1:
             self.hp -= st1.damage
             st1.kill()
+
 
         st3 = pygame.sprite.spritecollideany(self, crystal_group)
         if st3:
@@ -461,7 +464,7 @@ if __name__ == '__main__':
     notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
-    for i in range(10):
+    for i in range(15):
         Enemy1(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
         Enemy2(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
     player = Player(16 * 50, 10 * 50)
@@ -477,8 +480,8 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
                     notmain.Interface(size, screen).start_screen()
-        if player.hp == 0:
-            notmain.Interface(size, screen).end_screen(player.level, kills_count)
+        if player.hp <= 0:
+            notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
