@@ -2,22 +2,14 @@ import pygame
 import sys
 import os
 
-
-class Player:
-    def __init__(self):
-        self.hp = 0
-        self.lvl = 1
-        self.kills = 100
-
-
 FPS = 30
 pygame.init()
-size = width, height = 550, 550
-screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
-
 class Interface:
+    def __init__(self, size, screen):
+        self.size = size
+        self.screen = screen
     def load_image(self, name, colorkey=None):
         fullname = os.path.join('data', name)
         if not os.path.isfile(fullname):
@@ -42,12 +34,13 @@ class Interface:
                       "по стрелочкам",
                       "наступать на ящики нельзя"]
 
-        fon = pygame.transform.scale(self.load_image('fon.jpg'), (width, height))
-        screen.blit(fon, (0, 0))
+        fon = pygame.transform.scale(self.load_image('fon.jpg'), (self.size))
+        self.screen.blit(fon, (0, 0))
         font = pygame.font.Font(None, 30)
         text_coord = 50
-        pygame.draw.rect(screen, "green", (175, 360, 200, 100))
-        screen.blit(font.render("PLAY", 1, pygame.Color('black')), (250, 400))
+        button_X = self.size[1] // 3
+        pygame.draw.rect(self.screen, "green", (button_X, button_X * 2, 200, 100))
+        self.screen.blit(font.render("PLAY", 1, pygame.Color('black')), (button_X+75, button_X * 2 + 40))
         for line in intro_text:
             string_rendered = font.render(line, 1, pygame.Color('black'))
             intro_rect = string_rendered.get_rect()
@@ -55,7 +48,7 @@ class Interface:
             intro_rect.top = text_coord
             intro_rect.x = 10
             text_coord += intro_rect.height
-            screen.blit(string_rendered, intro_rect)
+            self.screen.blit(string_rendered, intro_rect)
 
         while True:
             for event in pygame.event.get():
@@ -65,7 +58,7 @@ class Interface:
                         event.type == pygame.MOUSEBUTTONDOWN:
                     clickX = event.pos[0]
                     clickY = event.pos[1]
-                    if (374 > clickX > 176) and (460 > clickY > 361):
+                    if ((button_X+200) > clickX > button_X) and ((button_X * 2) + 200 > clickY > button_X * 2):
                         return
             pygame.display.flip()
             clock.tick(FPS)
@@ -74,8 +67,8 @@ class Interface:
         f = [lvl, kills]
         intro_text = ["Твой уровень:", "",
                       "kills_count:"]
-        fon = pygame.transform.scale(self.load_image('fonDEAD.jpg'), (width, height))
-        screen.blit(fon, (0, 0))
+        fon = pygame.transform.scale(self.load_image('fonDEAD.jpg'), (self.size))
+        self.screen.blit(fon, (0, 0))
         font = pygame.font.Font(None, 60)
         text_coord = 50
         for line in intro_text:
@@ -85,25 +78,19 @@ class Interface:
             intro_rect.top = text_coord
             intro_rect.x = 10
             text_coord += intro_rect.height
-            screen.blit(string_rendered, intro_rect)
-        text = font.render(str(Player().lvl), True, pygame.Color("red"))
-        screen.blit(text, (300, 60))
-        text = font.render(str(Player().kills), True, pygame.Color("red"))
-        screen.blit(text, (250, 165))
-
+            self.screen.blit(string_rendered, intro_rect)
+        text = font.render(str(lvl), True, pygame.Color("red"))
+        self.screen.blit(text, (300, 60))
+        text = font.render(str(kills), True, pygame.Color("red"))
+        self.screen.blit(text, (250, 165))
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.terminate()
+                """elif event.type == pygame.KEYDOWN or \
+                        event.type == pygame.MOUSEBUTTONDOWN:
+                    Interface().start_screen()"""
+            pygame.display.flip()
+            clock.tick(FPS)
     def settings(self):
         pass
-
-if __name__ == '__main__':
-    Interface().start_screen()
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if Player().hp == 0:
-                Interface().end_screen(Player().lvl, Player().kills)
-        clock.tick(FPS)
-        pygame.display.flip()
-
-    pygame.quit()

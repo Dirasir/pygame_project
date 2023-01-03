@@ -3,6 +3,7 @@ import sys
 import os
 import random
 import math
+import notmain
 
 sss = "map.txt"
 
@@ -32,7 +33,7 @@ pygame.init()
 size = width, height = 800, 800
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
-
+kills_count = 0
 
 # функиця загрузки изображения при вводе 1 удаляется фон
 def load_image(name, colorkey=None):
@@ -73,37 +74,6 @@ def load_level(filename):
 
     # дополняем каждую строку пустыми клетками ('.')
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
-
-
-# начальный экран
-def start_screen():
-    intro_text = ["Управление", "",
-                  "по стрелочкам",
-                  "наступать на ящики нельзя"]
-
-    fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
-    screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 50
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('black'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                return  # начинаем игру
-        pygame.display.flip()
-        clock.tick(FPS)
-
 
 # список с изображениями ландшафта
 tile_images = {
@@ -269,7 +239,6 @@ class Poo(pygame.sprite.Sprite):
 # класс врага2
 class Enemy1(pygame.sprite.Sprite):
     image = load_image("kobakov.png", -1)
-
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
         self.image = Enemy1.image
@@ -332,10 +301,10 @@ class Enemy1(pygame.sprite.Sprite):
             self.kill()
 
 
+
 # класс врага2
 class Enemy2(pygame.sprite.Sprite):
     image = load_image("creature.png", -1)
-
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
         self.image = Enemy2.image
@@ -489,7 +458,7 @@ class Camera:
 
 
 if __name__ == '__main__':
-    start_screen()
+    notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
     for i in range(10):
@@ -507,7 +476,9 @@ if __name__ == '__main__':
                 player.shot(event.pos)
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
-                    start_screen()
+                    notmain.Interface(size, screen).start_screen()
+            if player.hp == 0:
+                notmain.Interface(size, screen).end_screen(player.level, kills_count)
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
