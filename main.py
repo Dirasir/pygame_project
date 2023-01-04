@@ -33,7 +33,7 @@ pygame.init()
 size = width, height = 800, 800
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
-
+kills_count = 0
 
 # функиця загрузки изображения при вводе 1 удаляется фон
 def load_image(name, colorkey=None):
@@ -298,8 +298,8 @@ class Enemy1(pygame.sprite.Sprite):
         if self.hp <= 0:
             if not random.randint(0, 3):
                 Crystal("light_blue", self.x, self.y)
-            player.kills_count += 1
             self.kill()
+            player.kills_count += 1
 
 
 
@@ -367,9 +367,8 @@ class Enemy2(pygame.sprite.Sprite):
         if self.hp <= 0:
             if not random.randint(0, 4):
                 Crystal("blue", self.x, self.y)
-            player.kills_count += 1
             self.kill()
-
+            player.kills_count += 1
 
 
 spisok_level = [0,50,150,300,500]
@@ -403,6 +402,7 @@ class Player(pygame.sprite.Sprite):
             self.hp -= st1.damage
             st1.kill()
 
+
         st3 = pygame.sprite.spritecollideany(self, crystal_group)
         if st3:
             self.exp += st3.price
@@ -426,7 +426,6 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
 
         if self.hp <= 0:
-            notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
             self.kill()
 
 
@@ -466,7 +465,7 @@ if __name__ == '__main__':
     notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
-    for i in range(10):
+    for i in range(15):
         Enemy1(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
         Enemy2(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
     player = Player(16 * 50, 10 * 50)
@@ -482,6 +481,8 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
                     notmain.Interface(size, screen).start_screen()
+        if player.hp <= 0:
+            notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True

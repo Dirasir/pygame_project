@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import main
 
 FPS = 30
 pygame.init()
@@ -54,8 +55,7 @@ class Interface:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.terminate()
-                elif event.type == pygame.KEYDOWN or \
-                        event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     clickX = event.pos[0]
                     clickY = event.pos[1]
                     if ((button_X+200) > clickX > button_X) and ((button_X * 2) + 200 > clickY > button_X * 2):
@@ -87,9 +87,8 @@ class Interface:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.terminate()
-                """elif event.type == pygame.KEYDOWN or \
-                        event.type == pygame.MOUSEBUTTONDOWN:
-                    Interface().start_screen()"""
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    Interface(main.size, main.screen).start_screen()
             pygame.display.flip()
             clock.tick(FPS)
     def settings(self):
