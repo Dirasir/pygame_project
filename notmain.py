@@ -51,7 +51,6 @@ class Interface:
             text_coord += intro_rect.height
             self.screen.blit(string_rendered, intro_rect)
 
-
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

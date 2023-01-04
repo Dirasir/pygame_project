@@ -5,7 +5,6 @@ import random
 import math
 import notmain
 
-
 sss = "map.txt"
 
 
