@@ -461,6 +461,7 @@ class Camera:
         self.x -= self.dx
 
 
+
 if __name__ == '__main__':
     notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
