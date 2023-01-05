@@ -420,12 +420,11 @@ class Player(pygame.sprite.Sprite):
         if self.exp >= spisok_level[self.level]:
             self.level += 1
             self.exp -= spisok_level[self.level - 1]
-        print(self.level)
-
         pygame.draw.rect(screen, "grey", (5, height - 30, width - 10, 25))
         pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
 
         if self.hp <= 0:
+            notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
             self.kill()
 
 
@@ -481,8 +480,6 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
                     notmain.Interface(size, screen).start_screen()
-        if player.hp <= 0:
-            notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
