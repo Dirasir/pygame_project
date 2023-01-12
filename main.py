@@ -390,6 +390,7 @@ class Enemy2(pygame.sprite.Sprite):
                                                                                                              player_group):
             self.y -= -(self.move_y)
 
+
         self.rect.x = self.x
         self.rect.y = self.y
 
