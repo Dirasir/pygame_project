@@ -113,5 +113,6 @@ class Interface:
                     return
             pygame.display.flip()
             clock.tick(FPS)
+
     def settings(self):
         pass
