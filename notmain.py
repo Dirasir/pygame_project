@@ -110,7 +110,7 @@ class Interface:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     clickX = event.pos[0]
                     clickY = event.pos[1]
-
+                    return
             pygame.display.flip()
             clock.tick(FPS)
     def settings(self):
