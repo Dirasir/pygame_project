@@ -30,7 +30,7 @@ class FPSCounter:
 
 FPS = 30
 pygame.init()
-size = width, height = 800, 800
+size = width, height = 550,550
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 kills_count = 0
@@ -296,7 +296,7 @@ class Enemy1(pygame.sprite.Sprite):
             st.kill()
 
         if self.hp <= 0:
-            if not random.randint(0, 3):
+            if random.randint(0, 3):
                 Crystal("light_blue", self.x, self.y)
             self.kill()
             player.kills_count += 1
@@ -365,7 +365,7 @@ class Enemy2(pygame.sprite.Sprite):
                 Poo(self.rect.x + 7, self.rect.y + 7)
 
         if self.hp <= 0:
-            if not random.randint(0, 4):
+            if  random.randint(0, 4):
                 Crystal("blue", self.x, self.y)
             self.kill()
             player.kills_count += 1
@@ -420,6 +420,7 @@ class Player(pygame.sprite.Sprite):
         if self.exp >= spisok_level[self.level]:
             self.level += 1
             self.exp -= spisok_level[self.level - 1]
+            notmain.Interface(size, screen).ability_win()
         pygame.draw.rect(screen, "grey", (5, height - 30, width - 10, 25))
         pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
 
@@ -457,7 +458,6 @@ class Camera:
         self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
         self.y -= self.dy
         self.x -= self.dx
-
 
 
 if __name__ == '__main__':

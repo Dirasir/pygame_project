@@ -6,7 +6,10 @@ import main
 FPS = 30
 pygame.init()
 clock = pygame.time.Clock()
-
+ability_pic = 0
+#abilka = {name: [ability_pic, ability_description]
+ability = {'Rot': ['bomb.png', "bombas delat babah"], 'Sword': ['creature.png', "piu piu piuuu"],
+           "Lol kek": ["grass4.png", "lol kek"]}
 class Interface:
     def __init__(self, size, screen):
         self.size = size
@@ -89,6 +92,25 @@ class Interface:
                     self.terminate()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     Interface(main.size, main.screen).start_screen()
+            pygame.display.flip()
+            clock.tick(FPS)
+    def ability_win(self):
+        fon = pygame.transform.scale(self.load_image('abiliti_fon.jpg'), (self.size))
+        self.screen.blit(fon, (0, 0))
+        truY = 10
+        for _ in range(3):
+            pygame.draw.rect(self.screen, pygame.Color("#FEFAD5"), (10, truY, self.size[0] - 100, self.size[1] // 4))
+            pygame.draw.rect(self.screen, "black", (10, truY, self.size[0] - 100, self.size[1] // 4), 1)
+
+            truY += self.size[1] // 4 + 10
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.terminate()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    clickX = event.pos[0]
+                    clickY = event.pos[1]
+
             pygame.display.flip()
             clock.tick(FPS)
     def settings(self):
