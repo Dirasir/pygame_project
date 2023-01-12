@@ -111,6 +111,7 @@ class Interface:
                     clickX = event.pos[0]
                     clickY = event.pos[1]
                     return
+
             pygame.display.flip()
             clock.tick(FPS)
 

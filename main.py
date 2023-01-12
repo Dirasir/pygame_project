@@ -533,6 +533,7 @@ class Player(pygame.sprite.Sprite):
             self.level += 1
             self.exp -= spisok_level[self.level - 1]
             notmain.Interface(size, screen).ability_win()
+
         pygame.draw.rect(screen, "grey", (5, height - 30, width - 10, 25))
         pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
 
