@@ -30,7 +30,7 @@ class FPSCounter:
 
 FPS = 30
 pygame.init()
-size = width, height = 550,550
+size = width, height = 800, 800
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 kills_count = 0
@@ -235,7 +235,45 @@ class Poo(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+class Laso(pygame.sprite.Sprite):
+    image = load_image("laso.png", -1)
 
+    def __init__(self, pos_x, pos_y):
+        super().__init__(enemy_weapon_group, all_sprites)
+        self.image = Laso.image
+        self.image = pygame.transform.scale(self.image, (30, 30))
+        self.rect = self.image.get_rect().move(pos_x, pos_y)
+
+        self.move_speed = 4
+        self.x = self.rect.x
+        self.y = self.rect.y
+        self.t = ((abs(self.rect.x - player.rect.x) ** 2 + abs(
+            self.rect.y - player.rect.y) ** 2) ** 0.5 - 12) / self.move_speed
+        if self.t == 0:
+            self.t = 0.000001
+        self.move_x = -(self.rect.x - player.rect.x) / self.t
+        self.move_y = -(self.rect.y - player.rect.y) / self.t
+
+        self.damage = 0
+
+        self.fps = 0
+        self.move = True
+
+    def update(self):
+        self.fps += 1
+        # по прошествию 5 секунд объект удалается
+        if self.fps == FPS * 5:
+            self.kill()
+        if self.move:
+            self.x += self.move_x
+            self.y += self.move_y
+            # проверка сталкиваеся ли объект со стеной или игроком
+            if pygame.sprite.spritecollideany(self, box_group) or pygame.sprite.spritecollideany(self, player_group):
+                self.move = False
+                self.x += self.move_x * 2
+                self.y += self.move_y * 2
+        self.rect.x = self.x
+        self.rect.y = self.y
 # класс врага2
 class Enemy1(pygame.sprite.Sprite):
     image = load_image("kobakov.png", -1)
@@ -296,7 +334,7 @@ class Enemy1(pygame.sprite.Sprite):
             st.kill()
 
         if self.hp <= 0:
-            if random.randint(0, 3):
+            if not random.randint(0, 3):
                 Crystal("light_blue", self.x, self.y)
             self.kill()
             player.kills_count += 1
@@ -352,6 +390,74 @@ class Enemy2(pygame.sprite.Sprite):
                                                                                                              player_group):
             self.y -= -(self.move_y)
 
+
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        st = pygame.sprite.spritecollideany(self, player_weapon_group)
+        if st:
+            self.hp -= st.damage
+            st.kill()
+
+        if (abs(self.rect.x - player.rect.x) ** 2 + abs(self.rect.y - player.rect.y) ** 2) ** 0.5 < 430:
+            if not random.randint(0, 450):
+                Poo(self.rect.x + 7, self.rect.y + 7)
+
+        if self.hp <= 0:
+            if not random.randint(0, 4):
+                Crystal("blue", self.x, self.y)
+            self.kill()
+            player.kills_count += 1
+
+
+class Enemy3(pygame.sprite.Sprite):
+    image = load_image("hokker.png", -1)
+    def __init__(self, pos_x, pos_y):
+        super().__init__(enemy_group, all_sprites)
+        self.image = Enemy3.image
+        self.image = pygame.transform.scale(self.image, (45, 45))
+        self.rect = self.image.get_rect().move(pos_x, pos_y)
+        self.move_speed = 0.5
+        self.x = self.rect.x
+        self.y = self.rect.y
+        self.hp = 30
+        self.damage = 30
+        self.damage_kd = 0
+
+    def update(self):
+        if self.damage_kd < 30:
+            self.damage_kd += 1
+        self.t = ((abs(self.rect.x - player.rect.x) ** 2 + abs(
+            self.rect.y - player.rect.y) ** 2) ** 0.5 - 12) / self.move_speed
+        if self.t == 0:
+            self.t = 0.000001
+        self.move_x = (self.rect.x - player.rect.x) / self.t
+        self.move_y = (self.rect.y - player.rect.y) / self.t
+
+        self.x += -self.move_x
+        self.rect.x = self.x
+        if pygame.sprite.spritecollideany(self, player_group) and self.damage_kd == 30:
+            player.hp -= self.damage
+            self.damage_kd = 0
+
+        if pygame.sprite.spritecollideany(self, box_group) or len(
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1 or pygame.sprite.spritecollideany(self,
+                                                                                                             player_group):
+            if self.move_x > 0:
+                self.x -= -(self.move_x + 1)
+            if self.move_x < 0:
+                self.x -= -(self.move_x - 1)
+
+        if pygame.sprite.spritecollideany(self, player_group) and self.damage_kd == 30:
+            player.hp -= self.damage
+            self.damage_kd = 0
+        self.y += -self.move_y
+        self.rect.y = self.y
+        if pygame.sprite.spritecollideany(self, box_group) or len(
+                pygame.sprite.spritecollide(self, enemy_group, False)) > 1 or pygame.sprite.spritecollideany(self,
+                                                                                                             player_group):
+            self.y -= -(self.move_y)
+
         self.rect.x = self.x
         self.rect.y = self.y
 
@@ -362,11 +468,11 @@ class Enemy2(pygame.sprite.Sprite):
 
         if (abs(self.rect.x - player.rect.x) ** 2 + abs(self.rect.y - player.rect.y) ** 2) ** 0.5 < 430:
             if not random.randint(0, 600):
-                Poo(self.rect.x + 7, self.rect.y + 7)
+                Laso(self.rect.x + 7, self.rect.y + 7)
 
         if self.hp <= 0:
-            if  random.randint(0, 4):
-                Crystal("blue", self.x, self.y)
+            if not random.randint(0, 4):
+                Crystal("purple", self.x, self.y)
             self.kill()
             player.kills_count += 1
 
@@ -380,27 +486,34 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.hp = 100
         self.weapon_kd = 0
-        self.exp = 0
+        self.level_kd = 0
+        self.exp = 900
         self.level = 1
         self.kills_count = 0
+        self.flag = True
 
     def move(self, x, y):
-        self.rect.x += x
-        self.rect.y += y
-        if pygame.sprite.spritecollideany(self, box_group):
-            self.rect.x -= x
-            self.rect.y -= y
+        if self.flag:
+            self.rect.x += x
+            self.rect.y += y
+            if pygame.sprite.spritecollideany(self, box_group):
+                self.rect.x -= x
+                self.rect.y -= y
 
     def shot(self, pos):
-        if self.weapon_kd == FPS * 2:
+        if self.weapon_kd >= FPS * 2 - self.level_kd:
             Knife(pos)
             self.weapon_kd = 0
 
     def update(self):
+        self.flag = True
         st1 = pygame.sprite.spritecollideany(self, enemy_weapon_group)
         if st1:
-            self.hp -= st1.damage
-            st1.kill()
+            if st1.damage == 0:
+                self.flag = False
+            else:
+                self.hp -= st1.damage
+                st1.kill()
 
 
         st3 = pygame.sprite.spritecollideany(self, crystal_group)
@@ -408,14 +521,13 @@ class Player(pygame.sprite.Sprite):
             self.exp += st3.price
             st3.kill()
 
-        if self.weapon_kd < FPS * 2:
+        if self.weapon_kd< FPS * 2 - self.level_kd:
             self.weapon_kd += 1
         pygame.draw.rect(screen, "grey", (self.rect.x - 13, self.rect.y + 50, 50, 10))
         pygame.draw.rect(screen, "red", (self.rect.x - 13, self.rect.y + 50, self.hp // 2, 10))
 
         pygame.draw.rect(screen, "grey", (self.rect.x - 13, self.rect.y + 50 + 20, 50, 10))
-        pygame.draw.rect(screen, "yellow",
-                         (self.rect.x - 13, self.rect.y + 50 + 20, 50 * (self.weapon_kd / (FPS * 2)), 10))
+        pygame.draw.rect(screen, "yellow", (self.rect.x - 13, self.rect.y + 50 + 20, 50 * (self.weapon_kd / (FPS * 2 - self.level_kd + 0.00000000000000001)), 10))
 
         if self.exp >= spisok_level[self.level]:
             self.level += 1
@@ -460,13 +572,13 @@ class Camera:
         self.x -= self.dx
 
 
+
 if __name__ == '__main__':
     notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
     for i in range(15):
-        Enemy1(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
-        Enemy2(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
+        Enemy3(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
     player = Player(16 * 50, 10 * 50)
     font = pygame.font.Font(None, 36)
     fps_counter = FPSCounter(screen, font, clock, "green", (40, 10))
@@ -512,6 +624,8 @@ if __name__ == '__main__':
         # ---------------------------------------------
         all_sprites.draw(screen)
         player.update()
+        font = pygame.font.Font(None, 110)
+        screen.blit(font.render(str(player.level), 1, pygame.Color('green')), (10, 720))
 
         # счётчик фпс
         fps_counter.render()
