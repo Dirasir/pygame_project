@@ -7,9 +7,9 @@ FPS = 30
 pygame.init()
 clock = pygame.time.Clock()
 ability_pic = 0
-#abilka = {name: [ability_pic, ability_description]
-ability = {'Rot': ['bomb.png', "bombas delat babah"], 'Sword': ['creature.png', "piu piu piuuu"],
-           "Lol kek": ["grass4.png", "lol kek"]}
+#abilka = {name: [ability_pic, ability_description]}
+ans = []
+
 class Interface:
     def __init__(self, size, screen):
         self.size = size
@@ -94,15 +94,32 @@ class Interface:
                     Interface(main.size, main.screen).start_screen()
             pygame.display.flip()
             clock.tick(FPS)
-    def ability_win(self):
+    def ability_win(self, spel1, spel2, spel3):
+        a = [spel1, spel2, spel3]
         fon = pygame.transform.scale(self.load_image('abiliti_fon.jpg'), (self.size))
         self.screen.blit(fon, (0, 0))
+        font = pygame.font.Font(None, 30)
+        text_coord = 20
         truY = 10
-        for _ in range(3):
+        for i in range(3):
             pygame.draw.rect(self.screen, pygame.Color("#FEFAD5"), (10, truY, self.size[0] - 100, self.size[1] // 4))
             pygame.draw.rect(self.screen, "black", (10, truY, self.size[0] - 100, self.size[1] // 4), 1)
-
             truY += self.size[1] // 4 + 10
+
+        for line in a:
+            string_rendered = font.render(line[1], 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.top = text_coord
+            intro_rect.x = self.size[0] - self.size[0] // 1.5
+            text_coord += intro_rect.height
+            self.screen.blit(string_rendered, intro_rect)
+            text_coord += self.size[1] // 4 + 10
+        truY = 10
+        for img in a:
+            image = self.load_image(img[0])
+            image1 = pygame.transform.scale(image, (150, 150))
+            self.screen.blit(image1, (12, truY))
+            truY += self.size[1] // 4 + 20
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -110,8 +127,18 @@ class Interface:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     clickX = event.pos[0]
                     clickY = event.pos[1]
-                    return
-
+                    if (710 > clickX > 10) and ((self.size[1] // 4 + 10) > clickY > 10):
+                        ans.append(spel1)
+                        print(ans)
+                        return
+                    if (710 > clickX > 10) and ((self.size[1] // 4 + 220) > clickY > (self.size[1] // 4 + 10)):
+                        ans.append(spel2)
+                        print(ans)
+                        return
+                    if (710 > clickX > 10) and (self.size[1] // 4 + 420) > clickY > (self.size[1] // 4 + 210):
+                        ans.append(spel3)
+                        print(ans)
+                        return
             pygame.display.flip()
             clock.tick(FPS)
 

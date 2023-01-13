@@ -532,7 +532,8 @@ class Player(pygame.sprite.Sprite):
         if self.exp >= spisok_level[self.level]:
             self.level += 1
             self.exp -= spisok_level[self.level - 1]
-            notmain.Interface(size, screen).ability_win()
+            notmain.Interface(size, screen).ability_win(["blue_crystal.png", "1111111"], ["grass4.png", "222222"],
+                                                        ["gray_crystal.png", "333333"])
 
         pygame.draw.rect(screen, "grey", (5, height - 30, width - 10, 25))
         pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
