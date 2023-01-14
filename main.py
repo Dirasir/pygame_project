@@ -3,9 +3,7 @@ import sys
 import os
 import random
 import math
-import time
 import notmain
-
 
 sss = "map.txt"
 
@@ -91,7 +89,7 @@ crystal_images = {
     "red": load_image("red_crystal.png"),
     "yellow": load_image("yellow_crystal.png")
 }
-
+player_image = load_image('mar.png')
 
 tile_width = tile_height = 50
 
@@ -282,7 +280,7 @@ class Enemy1(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
         self.image = Enemy1.image
-        self.image = pygame.transform.scale(self.image, (50, 75))
+        self.image = pygame.transform.scale(self.image, (45, 45))
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.move_speed = 2
         self.x = self.rect.x
@@ -349,7 +347,7 @@ class Enemy2(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
         self.image = Enemy2.image
-        self.image = pygame.transform.scale(self.image, (50, 75))
+        self.image = pygame.transform.scale(self.image, (45, 45))
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.move_speed = 1
         self.x = self.rect.x
@@ -417,7 +415,7 @@ class Enemy3(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_group, all_sprites)
         self.image = Enemy3.image
-        self.image = pygame.transform.scale(self.image, (50, 75))
+        self.image = pygame.transform.scale(self.image, (45, 45))
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.move_speed = 0.5
         self.x = self.rect.x
@@ -482,19 +480,14 @@ class Enemy3(pygame.sprite.Sprite):
 spisok_level = [0,50,150,300,500]
 # класс игрока
 class Player(pygame.sprite.Sprite):
-    image0 = load_image("mar.png")
-    image1 = load_image("Run1.png")
-    image2 = load_image("Run2.png")
-    image3 = load_image("Run3.png")
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
-        self.image = Player.image0
-        self.image = pygame.transform.scale(self.image, (50, 75))
+        self.image = player_image
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.hp = 100
         self.weapon_kd = 0
         self.level_kd = 0
-        self.exp = 0
+        self.exp = 900
         self.level = 1
         self.kills_count = 0
         self.flag = True
@@ -530,11 +523,11 @@ class Player(pygame.sprite.Sprite):
 
         if self.weapon_kd< FPS * 2 - self.level_kd:
             self.weapon_kd += 1
-        pygame.draw.rect(screen, "grey", (self.rect.x, self.rect.y + 85, 50, 10))
-        pygame.draw.rect(screen, "red", (self.rect.x, self.rect.y + 85, self.hp // 2, 10))
+        pygame.draw.rect(screen, "grey", (self.rect.x - 13, self.rect.y + 50, 50, 10))
+        pygame.draw.rect(screen, "red", (self.rect.x - 13, self.rect.y + 50, self.hp // 2, 10))
 
-        pygame.draw.rect(screen, "grey", (self.rect.x, self.rect.y + 85 + 20, 50, 10))
-        pygame.draw.rect(screen, "yellow", (self.rect.x, self.rect.y + 85 + 20, 50 * (self.weapon_kd / (FPS * 2 - self.level_kd + 0.00000000000000001)), 10))
+        pygame.draw.rect(screen, "grey", (self.rect.x - 13, self.rect.y + 50 + 20, 50, 10))
+        pygame.draw.rect(screen, "yellow", (self.rect.x - 13, self.rect.y + 50 + 20, 50 * (self.weapon_kd / (FPS * 2 - self.level_kd + 0.00000000000000001)), 10))
 
         if self.exp >= spisok_level[self.level]:
             self.level += 1
@@ -542,8 +535,8 @@ class Player(pygame.sprite.Sprite):
             notmain.Interface(size, screen).ability_win(["blue_crystal.png", "1111111"], ["grass4.png", "222222"],
                                                         ["gray_crystal.png", "333333"])
 
-        pygame.draw.rect(screen, "grey", (65, height - 55, width - 70, 35))
-        pygame.draw.rect(screen, "blue", (65, height - 55, (self.exp / spisok_level[self.level]) * (width - 70), 35))
+        pygame.draw.rect(screen, "grey", (5, height - 30, width - 10, 25))
+        pygame.draw.rect(screen, "blue", (5, height - 30, (self.exp / spisok_level[self.level]) * (width - 10), 25))
 
         if self.hp <= 0:
             notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
@@ -586,11 +579,11 @@ if __name__ == '__main__':
     notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
+    for i in range(15):
+        Enemy3(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
     player = Player(16 * 50, 10 * 50)
     font = pygame.font.Font(None, 36)
     fps_counter = FPSCounter(screen, font, clock, "green", (40, 10))
-    start_time = time.ctime(time.time())[14:19]
-    fpsfps = 0
     running = True
     while running:
         for event in pygame.event.get():
@@ -601,12 +594,6 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
                     notmain.Interface(size, screen).start_screen()
-        fpsfps += 1
-        if fpsfps == FPS * 5:
-            Enemy1(400 + random.randint(400, 600) * random.randrange(-1, 2, 2), 400 + random.randint(400, 600) * random.randrange(-1, 2, 2))
-            Enemy2(400 + random.randint(400, 600) * random.randrange(-1, 2, 2), 400 + random.randint(400, 600) * random.randrange(-1, 2, 2))
-            Enemy3(400 + random.randint(400, 600) * random.randrange(-1, 2, 2), 400 + random.randint(400, 600) * random.randrange(-1, 2, 2))
-            fpsfps = 0
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
@@ -640,13 +627,7 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         player.update()
         font = pygame.font.Font(None, 110)
-        screen.blit(font.render(str(player.level), 1, pygame.Color('green')), (10, 730))
-
-        # создание таймера
-        last_time = time.ctime(time.time())[14:19]
-        time_first = str(int(last_time[:2]) - int(start_time[:2])) + ":" + str(int(last_time[3:]) - int(start_time[3:]))
-        font = pygame.font.Font(None, 110)
-        screen.blit(font.render(time_first, 1, pygame.Color('black')), (340, 10))
+        screen.blit(font.render(str(player.level), 1, pygame.Color('green')), (10, 720))
 
         # счётчик фпс
         fps_counter.render()
