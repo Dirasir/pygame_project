@@ -89,7 +89,7 @@ crystal_images = {
     "red": load_image("red_crystal.png"),
     "yellow": load_image("yellow_crystal.png")
 }
-player_image = load_image('mar.png')
+player_image = load_image('Main_Character_Standing.png')
 
 tile_width = tile_height = 50
 
@@ -482,7 +482,8 @@ spisok_level = [0,50,150,300,500]
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
-        self.image = player_image
+        self.image1 = player_image
+        self.image = pygame.transform.scale(self.image1, (34, 60))
         self.rect = self.image.get_rect().move(pos_x, pos_y)
         self.hp = 100
         self.weapon_kd = 0
