@@ -581,6 +581,9 @@ if __name__ == '__main__':
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
     for i in range(15):
+        Enemy2(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
+        Enemy1(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
+    for i in range(5):
         Enemy3(random.randint(8, 60) * 50, random.randint(8, 22) * 50)
     player = Player(16 * 50, 10 * 50)
     font = pygame.font.Font(None, 36)
