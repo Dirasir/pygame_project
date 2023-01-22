@@ -7,13 +7,15 @@ FPS = 30
 pygame.init()
 clock = pygame.time.Clock()
 ability_pic = 0
-#abilka = {name: [ability_pic, ability_description]}
+# abilka = {name: [ability_pic, ability_description]}
 ans = []
+
 
 class Interface:
     def __init__(self, size, screen):
         self.size = size
         self.screen = screen
+
     def load_image(self, name, colorkey=None):
         fullname = os.path.join('data', name)
         if not os.path.isfile(fullname):
@@ -44,7 +46,8 @@ class Interface:
         text_coord = 50
         button_X = self.size[1] // 3
         pygame.draw.rect(self.screen, "green", (button_X, button_X * 2, 200, 100))
-        self.screen.blit(font.render("PLAY", 1, pygame.Color('black')), (button_X+75, button_X * 2 + 40))
+        self.screen.blit(font.render("PLAY", 1, pygame.Color('black')), (button_X + 75, button_X * 2 + 40))
+        active = False
         for line in intro_text:
             string_rendered = font.render(line, 1, pygame.Color('black'))
             intro_rect = string_rendered.get_rect()
@@ -61,7 +64,7 @@ class Interface:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     clickX = event.pos[0]
                     clickY = event.pos[1]
-                    if ((button_X+200) > clickX > button_X) and ((button_X * 2) + 200 > clickY > button_X * 2):
+                    if ((button_X + 200) > clickX > button_X) and ((button_X * 2) + 200 > clickY > button_X * 2):
                         return
             pygame.display.flip()
             clock.tick(FPS)
@@ -94,6 +97,7 @@ class Interface:
                     Interface(main.size, main.screen).start_screen()
             pygame.display.flip()
             clock.tick(FPS)
+
     def ability_win(self, spel1, spel2, spel3):
         a = [spel1, spel2, spel3]
         fon = pygame.transform.scale(self.load_image('abiliti_fon.jpg'), (self.size))
@@ -142,5 +146,43 @@ class Interface:
             pygame.display.flip()
             clock.tick(FPS)
 
-    def settings(self):
-        pass
+    def TipoOknoVodda(self):
+        size = width, height = 500, 500
+        screen = pygame.display.set_mode(size)
+
+
+class InputBox:
+    def __init__(self, x, y, w, h, text=''):
+        self.font = pygame.font.Font(None, 32)
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = pygame.color.Color("white")
+        self.text = text
+        self.txt_surface = self.font.render(text, True, self.color)
+        self.active = False
+
+    def main(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if self.rect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    print(self.text)
+                    self.text = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = self.font.render(self.text, True, self.color)
+
+    def draw(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
+        # Blit the rect.
+        pygame.draw.rect(screen, self.color, self.rect, 2)
