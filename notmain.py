@@ -111,7 +111,7 @@ class Interface:
             truY += self.size[1] // 4 + 10
 
         for line in a:
-            string_rendered = font.render(line[1], 1, pygame.Color('black'))
+            string_rendered = font.render(line().description, 1, pygame.Color('black'))
             intro_rect = string_rendered.get_rect()
             intro_rect.top = text_coord
             intro_rect.x = self.size[0] - self.size[0] // 1.5
@@ -120,7 +120,7 @@ class Interface:
             text_coord += self.size[1] // 4 + 10
         truY = 10
         for img in a:
-            image = self.load_image(img[0])
+            image = self.load_image(img().image)
             image1 = pygame.transform.scale(image, (150, 150))
             self.screen.blit(image1, (12, truY))
             truY += self.size[1] // 4 + 20
@@ -133,15 +133,15 @@ class Interface:
                     clickY = event.pos[1]
                     if (710 > clickX > 10) and ((self.size[1] // 4 + 10) > clickY > 10):
                         ans.append(spel1)
-                        print(ans)
+                        spel1().use()
                         return
                     if (710 > clickX > 10) and ((self.size[1] // 4 + 220) > clickY > (self.size[1] // 4 + 10)):
                         ans.append(spel2)
-                        print(ans)
+                        spel2().use()
                         return
                     if (710 > clickX > 10) and (self.size[1] // 4 + 420) > clickY > (self.size[1] // 4 + 210):
                         ans.append(spel3)
-                        print(ans)
+                        spel3().use()
                         return
             pygame.display.flip()
             clock.tick(FPS)
@@ -149,40 +149,3 @@ class Interface:
     def TipoOknoVodda(self):
         size = width, height = 500, 500
         screen = pygame.display.set_mode(size)
-
-
-class InputBox:
-    def __init__(self, x, y, w, h, text=''):
-        self.font = pygame.font.Font(None, 32)
-        self.rect = pygame.Rect(x, y, w, h)
-        self.color = pygame.color.Color("white")
-        self.text = text
-        self.txt_surface = self.font.render(text, True, self.color)
-        self.active = False
-
-    def main(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # If the user clicked on the input_box rect.
-            if self.rect.collidepoint(event.pos):
-                # Toggle the active variable.
-                self.active = not self.active
-            else:
-                self.active = False
-            # Change the current color of the input box.
-        if event.type == pygame.KEYDOWN:
-            if self.active:
-                if event.key == pygame.K_RETURN:
-                    print(self.text)
-                    self.text = ''
-                elif event.key == pygame.K_BACKSPACE:
-                    self.text = self.text[:-1]
-                else:
-                    self.text += event.unicode
-                # Re-render the text.
-                self.txt_surface = self.font.render(self.text, True, self.color)
-
-    def draw(self, screen):
-        # Blit the text.
-        screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
-        # Blit the rect.
-        pygame.draw.rect(screen, self.color, self.rect, 2)

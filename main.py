@@ -5,7 +5,7 @@ import random
 import math
 import time
 import notmain
-
+import ability
 
 sss = "map.txt"
 
@@ -32,11 +32,35 @@ class FPSCounter:
 
 FPS = 30
 pygame.init()
-size = width, height = 800, 800
+size = width, height = 950, 800
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 kills_count = 0
 
+
+class Up_strange:
+    def __init__(self):
+        #super().__init__(ability_sprites, all_sprites)
+        self.image = "blue_crystal.png"
+        self.description = "Увеличение хп персонажа на 10"
+    def use(self):
+        player.hp += 20
+
+class Up_movespeed:
+    def __init__(self):
+        #super().__init__(ability_sprites, all_sprites)
+        self.image = "Run1.png"
+        self.description = "Увеличение скорости персонажа на 1"
+    def use(self):
+        player.move_speed += 1
+
+class Up_damage:
+    def __init__(self):
+        #super().__init__(ability_sprites, all_sprites)
+        self.image = "red_crystal.png"
+        self.description = "Увеличение урона персонажа на 3"
+    def use(self):
+        player.bonus_damage += 3
 
 # функиця загрузки изображения при вводе 1 удаляется фон
 def load_image(name, colorkey=None):
@@ -149,16 +173,16 @@ class Crystal(pygame.sprite.Sprite):
 
 # класс ножа игрока
 class Knife(pygame.sprite.Sprite):
-    image = load_image("Sprite_Weapon.png", -1)
+    image = load_image("Sprite_Weapon.png")
 
-    def __init__(self, pos):
+    def __init__(self, pos, bonus_dmg):
         super().__init__(player_weapon_group, all_sprites)
         self.image = Knife.image
         self.image = pygame.transform.scale(self.image, (30, 30))
 
         self.rect = self.image.get_rect().move(player.rect.x, player.rect.y)
 
-        self.damage = 10
+        self.damage = 10 + bonus_dmg
 
         self.move_speed = 4
         self.x = self.rect.x
@@ -198,7 +222,7 @@ class Knife(pygame.sprite.Sprite):
 
 # класс снарядов врагов
 class Poo(pygame.sprite.Sprite):
-    image = load_image("poo.png", -1)
+    image = load_image("fist_slime.png")
 
     def __init__(self, pos_x, pos_y):
         super().__init__(enemy_weapon_group, all_sprites)
@@ -213,14 +237,13 @@ class Poo(pygame.sprite.Sprite):
             self.rect.y - player.rect.y) ** 2) ** 0.5 - 12) / self.move_speed
         if self.t == 0:
             self.t = 0.000001
+
         self.move_x = -(self.rect.x - player.rect.x) / self.t
         self.move_y = -(self.rect.y - player.rect.y) / self.t
 
         self.damage = 10
-
         self.fps = 0
         self.move = True
-
     def update(self):
         self.fps += 1
         # по прошествию 5 секунд объект удалается
@@ -361,7 +384,7 @@ class Enemy1(pygame.sprite.Sprite):
 
 # класс врага2
 class Enemy2(pygame.sprite.Sprite):
-    image = load_image("creature.png", -1)
+    image = load_image("creature.png")
     def __init__(self,sheet, columns, rows, x, y):
         super().__init__(enemy_group, all_sprites)
         self.frames = []
@@ -541,7 +564,7 @@ class Enemy3(pygame.sprite.Sprite):
             player.kills_count += 1
 
 
-spisok_level = [0,50,150,300,500]
+spisok_level = [0,50,150,300,500,750,1050]
 # класс игрока
 class Player(pygame.sprite.Sprite):
     image0 = load_image("Main_Character_Standing.png")
@@ -557,12 +580,14 @@ class Player(pygame.sprite.Sprite):
         self.hp = 100
         self.weapon_kd = 0
         self.level_kd = 0
-        self.exp = 0
+        self.exp = 1000
         self.level = 1
         self.kills_count = 0
         self.flag = True
         self.flag1 = False
         self.ind = 0
+        self.move_speed = 2
+        self.bonus_damage = 0
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -593,7 +618,7 @@ class Player(pygame.sprite.Sprite):
 
     def shot(self, pos):
         if self.weapon_kd >= FPS * 2 - self.level_kd:
-            Knife(pos)
+            Knife(pos, self.bonus_damage)
             self.weapon_kd = 0
 
     def update(self):
@@ -624,8 +649,8 @@ class Player(pygame.sprite.Sprite):
         if self.exp >= spisok_level[self.level]:
             self.level += 1
             self.exp -= spisok_level[self.level - 1]
-            notmain.Interface(size, screen).ability_win(["blue_crystal.png", "1111111"], ["grass4.png", "222222"],
-                                                        ["gray_crystal.png", "333333"])
+            notmain.Interface(size, screen).ability_win(Up_strange, Up_movespeed,
+                                                        Up_damage)
 
         pygame.draw.rect(screen, "grey", (65, height - 55, width - 70, 35))
         pygame.draw.rect(screen, "blue", (65, height - 55, (self.exp / spisok_level[self.level]) * (width - 70), 35))
@@ -665,10 +690,7 @@ class Camera:
         self.y -= self.dy
         self.x -= self.dx
 
-
-
 if __name__ == '__main__':
-
     notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
     camera = Camera()
@@ -703,16 +725,16 @@ if __name__ == '__main__':
         spisok = list(pygame.key.get_pressed())
         spisok[511] = True
         if spisok.index(True) == 7:
-            player.move(2, 0)
+            player.move(player.move_speed, 0)
             spisok[7] = False
         if spisok.index(True) == 4:
-            player.move(-2, 0)
+            player.move(-player.move_speed, 0)
             spisok[4] = False
         if spisok.index(True) == 22:
-            player.move(0, 2)
+            player.move(0, player.move_speed)
             spisok[22] = False
         if spisok.index(True) == 26:
-            player.move(0, -2)
+            player.move(0, -player.move_speed)
             spisok[26] = False
         # ----------------
         screen.fill("black")
