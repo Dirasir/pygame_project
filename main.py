@@ -640,11 +640,11 @@ class Player(pygame.sprite.Sprite):
 
         if self.weapon_kd< FPS * 2 - self.level_kd:
             self.weapon_kd += 1
-        pygame.draw.rect(screen, "grey", (self.rect.x, self.rect.y + 85, 50, 10))
-        pygame.draw.rect(screen, "red", (self.rect.x, self.rect.y + 85, self.hp // 2, 10))
+        pygame.draw.rect(screen, "grey", (self.rect.x, self.rect.y + 85, 70, 10))
+        pygame.draw.rect(screen, "red", (self.rect.x, self.rect.y + 85, (self.hp / 100) * 70, 10))
 
-        pygame.draw.rect(screen, "grey", (self.rect.x, self.rect.y + 85 + 20, 50, 10))
-        pygame.draw.rect(screen, "yellow", (self.rect.x, self.rect.y + 85 + 20, 50 * (self.weapon_kd / (FPS * 2 - self.level_kd + 0.00000000000000001)), 10))
+        pygame.draw.rect(screen, "grey", (self.rect.x, self.rect.y + 85 + 20, 70, 10))
+        pygame.draw.rect(screen, "yellow", (self.rect.x, self.rect.y + 85 + 20, 70 * (self.weapon_kd / (FPS * 2 - self.level_kd + 0.00000000000000001)), 10))
 
         if self.exp >= spisok_level[self.level]:
             self.level += 1
@@ -658,6 +658,10 @@ class Player(pygame.sprite.Sprite):
         if self.hp <= 0:
             notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
             self.kill()
+
+
+        if self.hp > 100:
+            self.hp = 100
 
 
 # класс камеры
@@ -698,6 +702,8 @@ if __name__ == '__main__':
     font = pygame.font.Font(None, 36)
     fps_counter = FPSCounter(screen, font, clock, "green", (40, 10))
     start_time = time.ctime(time.time())[14:19]
+
+    start_time = int(start_time[:2]) * 60 + int(start_time[3:])
     fpsfps = 0
     running = True
     while running:
@@ -758,7 +764,11 @@ if __name__ == '__main__':
 
         # создание таймера
         last_time = time.ctime(time.time())[14:19]
-        time_first = str(int(last_time[:2]) - int(start_time[:2])) + ":" + str(int(last_time[3:]) - int(start_time[3:]))
+        last_time = int(last_time[:2]) * 60 + int(last_time[3:]) - start_time
+        time_first = str(last_time // 60) + ":" + str(last_time % 60)
+
+        print(start_time,last_time)
+        print(time_first)
         font = pygame.font.Font(None, 110)
         screen.blit(font.render(time_first, 1, pygame.Color('black')), (340, 10))
 
