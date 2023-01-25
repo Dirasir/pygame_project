@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 import main
+import sqlite3
 
 FPS = 30
 pygame.init()
@@ -38,16 +39,16 @@ class Interface:
     def start_screen(self):
         intro_text = ["Управление", "",
                       "по стрелочкам",
-                      "наступать на ящики нельзя"]
+                      "наступать на ящики нельзя",
+                      "лучший счёт:"]
 
         fon = pygame.transform.scale(self.load_image('fon.jpg'), (self.size))
         self.screen.blit(fon, (0, 0))
         font = pygame.font.Font(None, 30)
         text_coord = 50
-        button_X = self.size[1] // 3
+        button_X = (self.size[1] // 3) + 80
         pygame.draw.rect(self.screen, "green", (button_X, button_X * 2, 200, 100))
         self.screen.blit(font.render("PLAY", 1, pygame.Color('black')), (button_X + 75, button_X * 2 + 40))
-        active = False
         for line in intro_text:
             string_rendered = font.render(line, 1, pygame.Color('black'))
             intro_rect = string_rendered.get_rect()
@@ -56,7 +57,11 @@ class Interface:
             intro_rect.x = 10
             text_coord += intro_rect.height
             self.screen.blit(string_rendered, intro_rect)
-
+        with sqlite3.connect('accounts.db') as db:
+            cur = db.cursor().execute("""SELECT * FROM acc""").fetchall()
+            top = max(*cur)
+        text = font.render(str(top), True, pygame.Color("red"))
+        self.screen.blit(text, (150, 180))
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -89,6 +94,9 @@ class Interface:
         self.screen.blit(text, (300, 60))
         text = font.render(str(kills), True, pygame.Color("red"))
         self.screen.blit(text, (250, 165))
+        with sqlite3.connect('accounts.db') as db:
+            cur = db.cursor()
+            cur.execute(f"""INSERT INTO acc VALUES({kills})""")
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -145,7 +153,3 @@ class Interface:
                         return
             pygame.display.flip()
             clock.tick(FPS)
-
-    def TipoOknoVodda(self):
-        size = width, height = 500, 500
-        screen = pygame.display.set_mode(size)

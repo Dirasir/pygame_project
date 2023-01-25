@@ -105,7 +105,7 @@ def load_level(filename):
 # список с изображениями ландшафта
 tile_images = {
     'wall': load_image('box.png'),
-    'empty': load_image('grass4.png')
+    'empty': load_image('grass3.png')
 }
 crystal_images = {
     "blue": load_image("blue_crystal.png"),
@@ -302,7 +302,7 @@ class Laso(pygame.sprite.Sprite):
 # класс врага2
 class Enemy1(pygame.sprite.Sprite):
     image = load_image("kobakov.png", -1)
-    def __init__(self, sheet, columns, rows, x, y):
+    def __init__(self, sheet, columns, rows, x, y, time):
         super().__init__(enemy_group, all_sprites)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
@@ -316,6 +316,7 @@ class Enemy1(pygame.sprite.Sprite):
         self.damage = 10
         self.damage_kd = 0
         self.ind = 0
+        self.time = time
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -380,12 +381,15 @@ class Enemy1(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
+        if self.time % 60 == 0:
+            self.hp += 5
+            self.damage += 5
 
 
 # класс врага2
 class Enemy2(pygame.sprite.Sprite):
     image = load_image("creature.png")
-    def __init__(self,sheet, columns, rows, x, y):
+    def __init__(self,sheet, columns, rows, x, y, time):
         super().__init__(enemy_group, all_sprites)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
@@ -400,6 +404,7 @@ class Enemy2(pygame.sprite.Sprite):
         self.damage_kd = 0
         self.ind = 0
         self.flag1 = True
+        self.time = time
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                                 sheet.get_height() // rows)
@@ -472,10 +477,13 @@ class Enemy2(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
+        if self.time % 60 == 0:
+            self.hp += 10
+            self.damage += 10
 
 class Enemy3(pygame.sprite.Sprite):
     image = load_image("hokker.png", -1)
-    def __init__(self,sheet, columns, rows, x, y):
+    def __init__(self,sheet, columns, rows, x, y, time):
         super().__init__(enemy_group, all_sprites)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
@@ -491,7 +499,7 @@ class Enemy3(pygame.sprite.Sprite):
         self.damage_kd = 0
         self.ind = 0
         self.flag1 = True
-
+        self.time = time
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                                 sheet.get_height() // rows)
@@ -563,6 +571,9 @@ class Enemy3(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
+        if time % 60 == 0:
+            self.hp += 5
+            self.damage += 5
 
 spisok_level = [0,50,150,300,500,750,1050]
 # класс игрока
@@ -706,6 +717,7 @@ if __name__ == '__main__':
     start_time = int(start_time[:2]) * 60 + int(start_time[3:])
     fpsfps = 0
     running = True
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -719,13 +731,13 @@ if __name__ == '__main__':
         if fpsfps == FPS * 5:
             Enemy1(load_image("slime1 _run.png"), 2, 1,
                    400 + random.randint(400, 600) * random.randrange(-1, 2, 2),
-                   400 + random.randint(400, 600) * random.randrange(-1, 2, 2))
+                   400 + random.randint(400, 600) * random.randrange(-1, 2, 2), last_time)
             Enemy2(load_image("eliteslime_run.png"), 3, 1,
                    400 + random.randint(400, 600) * random.randrange(-1, 2, 2),
-                   400 + random.randint(400, 600) * random.randrange(-1, 2, 2))
+                   400 + random.randint(400, 600) * random.randrange(-1, 2, 2), last_time)
             Enemy3(load_image("cowslime_run.png"), 2, 1,
                    400 + random.randint(400, 600) * random.randrange(-1, 2, 2),
-                   400 + random.randint(400, 600) * random.randrange(-1, 2, 2))
+                   400 + random.randint(400, 600) * random.randrange(-1, 2, 2), last_time)
             fpsfps = 0
         # перемещение героя
         spisok = list(pygame.key.get_pressed())
@@ -767,8 +779,13 @@ if __name__ == '__main__':
         last_time = int(last_time[:2]) * 60 + int(last_time[3:]) - start_time
         time_first = str(last_time // 60) + ":" + str(last_time % 60)
 
-        print(start_time,last_time)
+        print(last_time)
         print(time_first)
+        if last_time % 60 == 0:
+            if last_time % 60 != 4:
+                font = pygame.font.Font(None, 35)
+                text = font.render("Увеличение сложности", True, pygame.Color("red"))
+                screen.blit(text, (200, 100))
         font = pygame.font.Font(None, 110)
         screen.blit(font.render(time_first, 1, pygame.Color('black')), (340, 10))
 
