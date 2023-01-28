@@ -59,9 +59,9 @@ class Up_damage:
     def __init__(self):
         #super().__init__(ability_sprites, all_sprites)
         self.image = "red_crystal.png"
-        self.description = "Увеличение урона персонажа на 3"
+        self.description = "Увеличение урона персонажа на 5"
     def use(self):
-        player.bonus_damage += 3
+        player.bonus_damage += 5
 
 # функиця загрузки изображения при вводе 1 удаляется фон
 def load_image(name, colorkey=None):
@@ -202,7 +202,7 @@ class Knife(pygame.sprite.Sprite):
         self.fps = 0
         self.move = True
 
-        self.rotate = -(math.degrees(math.atan(self.move_y / self.move_x)))
+        self.rotate = -(math.degrees(math.atan(self.move_y / self.move_x))) + 0.000000000000001
         if self.move_x < 0:
             self.rotate += 180
 
@@ -612,7 +612,7 @@ class Player(pygame.sprite.Sprite):
         self.flag = True
         self.flag1 = False
         self.ind = 0
-        self.move_speed = 15
+        self.move_speed = 2
         self.bonus_damage = 0
 
     def cut_sheet(self, sheet, columns, rows):
