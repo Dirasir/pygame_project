@@ -4,6 +4,8 @@ import os
 import main
 import sqlite3
 
+pygame.mixer.music.load("data/zvukiprirodi.mp3.mp3")
+
 FPS = 30
 pygame.init()
 clock = pygame.time.Clock()
@@ -37,6 +39,7 @@ class Interface:
         sys.exit()
 
     def start_screen(self):
+        pygame.mixer.music.pause()
         intro_text = ["Управление", "",
                       "по стрелочкам",
                       "наступать на ящики нельзя",
@@ -102,7 +105,7 @@ class Interface:
                 if event.type == pygame.QUIT:
                     self.terminate()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    Interface(main.size, main.screen).start_screen()
+                    self.terminate()
             pygame.display.flip()
             clock.tick(FPS)
 

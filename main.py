@@ -381,10 +381,9 @@ class Enemy1(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
-        if self.time % 60 == 0:
+        if int(self.time) % 60 == 0:
             self.hp += 5
             self.damage += 5
-
 
 # класс врага2
 class Enemy2(pygame.sprite.Sprite):
@@ -477,7 +476,7 @@ class Enemy2(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
-        if self.time % 60 == 0:
+        if int(self.time) % 60 == 0:
             self.hp += 10
             self.damage += 10
 
@@ -571,11 +570,13 @@ class Enemy3(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
-        if time % 60 == 0:
+        if int(self.time) % 60 == 0:
             self.hp += 5
             self.damage += 5
 
-spisok_level = [0,50,150,300,500,750,1050]
+
+spisok_level = [i for i in range(0, 1500, 50)]
+
 # класс игрока
 class Player(pygame.sprite.Sprite):
     image0 = load_image("Main_Character_Standing.png")
@@ -667,6 +668,8 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(screen, "blue", (65, height - 55, (self.exp / spisok_level[self.level]) * (width - 70), 35))
 
         if self.hp <= 0:
+            pygame.mixer.music.load("data/roblox-death-sound-effect.mp3")
+            pygame.mixer.music.play(0)
             notmain.Interface(size, screen).end_screen(player.level, player.kills_count)
             self.kill()
 
@@ -705,9 +708,12 @@ class Camera:
         self.y -= self.dy
         self.x -= self.dx
 
+
 if __name__ == '__main__':
     notmain.Interface(size, screen).start_screen()
     level_x, level_y = generate_level(load_level(sss))
+    pygame.mixer.music.load("data/zvukiprirodi.mp3.mp3")
+    pygame.mixer.music.play(-1)
     camera = Camera()
     player = Player(load_image("runn.png"), 3, 1, 16 * 50,  10 * 50)
     font = pygame.font.Font(None, 36)
@@ -727,6 +733,8 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if list(pygame.key.get_pressed())[41] == True:
                     notmain.Interface(size, screen).start_screen()
+                    pygame.mixer.music.pause()
+                pygame.mixer.music.unpause()
         fpsfps += 1
         if fpsfps == FPS * 5:
             Enemy1(load_image("slime1 _run.png"), 2, 1,
@@ -779,13 +787,12 @@ if __name__ == '__main__':
         last_time = int(last_time[:2]) * 60 + int(last_time[3:]) - start_time
         time_first = str(last_time // 60) + ":" + str(last_time % 60)
 
-        print(last_time)
-        print(time_first)
         if last_time % 60 == 0:
             if last_time % 60 != 4:
                 font = pygame.font.Font(None, 35)
                 text = font.render("Увеличение сложности", True, pygame.Color("red"))
                 screen.blit(text, (200, 100))
+
         font = pygame.font.Font(None, 110)
         screen.blit(font.render(time_first, 1, pygame.Color('black')), (340, 10))
 
