@@ -5,7 +5,6 @@ import random
 import math
 import time
 import notmain
-import ability
 
 sss = "map.txt"
 
@@ -37,7 +36,7 @@ screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 kills_count = 0
 
-
+#способность увелечение ха персонажа
 class Up_strange:
     def __init__(self):
         #super().__init__(ability_sprites, all_sprites)
@@ -46,6 +45,7 @@ class Up_strange:
     def use(self):
         player.hp += 20
 
+#способность увелечение скорости ходьбы персонажа
 class Up_movespeed:
     def __init__(self):
         #super().__init__(ability_sprites, all_sprites)
@@ -54,6 +54,7 @@ class Up_movespeed:
     def use(self):
         player.move_speed += 1
 
+#способность увелечение урона персонажа
 class Up_damage:
     def __init__(self):
         #super().__init__(ability_sprites, all_sprites)
@@ -105,7 +106,8 @@ def load_level(filename):
 # список с изображениями ландшафта
 tile_images = {
     'wall': load_image('box.png'),
-    'empty': load_image('grass3.png')
+    'empty': load_image('grass4.png'),
+    'deathzone': load_image('grass4.png')
 }
 crystal_images = {
     "blue": load_image("blue_crystal.png"),
@@ -129,7 +131,7 @@ enemy_group = pygame.sprite.Group()
 enemy_weapon_group = pygame.sprite.Group()
 player_weapon_group = pygame.sprite.Group()
 crystal_group = pygame.sprite.Group()
-
+deathzone_group = pygame.sprite.Group()
 
 # создания уровня на вход подаёться список созданный в функии load_level()
 def generate_level(level):
@@ -142,6 +144,8 @@ def generate_level(level):
                 Tile('wall', x, y)
             elif level[y][x] == '@':
                 Tile('empty', x, y)
+            elif level[y][x] == ',':
+                Tile('deathzone', x, y)
     # вернем игрока, а также размер поля в клетках
     return x, y
 
@@ -154,6 +158,8 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
         if tile_type == "wall":
             self.add(box_group)
+        if tile_type == "deathzone":
+            self.add(deathzone_group)
 
 
 class Crystal(pygame.sprite.Sprite):
@@ -370,6 +376,8 @@ class Enemy1(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+        if pygame.sprite.spritecollideany(self, deathzone_group):
+            self.kill()
         st = pygame.sprite.spritecollideany(self, player_weapon_group)
         if st:
             self.hp -= st.damage
@@ -476,6 +484,9 @@ class Enemy2(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
+        if pygame.sprite.spritecollideany(self, deathzone_group):
+            self.kill()
+
         if int(self.time) % 60 == 0:
             self.hp += 10
             self.damage += 10
@@ -570,6 +581,9 @@ class Enemy3(pygame.sprite.Sprite):
             self.kill()
             player.kills_count += 1
 
+        if pygame.sprite.spritecollideany(self, deathzone_group):
+            self.kill()
+
         if int(self.time) % 60 == 0:
             self.hp += 5
             self.damage += 5
@@ -592,13 +606,13 @@ class Player(pygame.sprite.Sprite):
         self.hp = 100
         self.weapon_kd = 0
         self.level_kd = 0
-        self.exp = 1000
+        self.exp = 0
         self.level = 1
         self.kills_count = 0
         self.flag = True
         self.flag1 = False
         self.ind = 0
-        self.move_speed = 2
+        self.move_speed = 15
         self.bonus_damage = 0
 
     def cut_sheet(self, sheet, columns, rows):
@@ -736,6 +750,7 @@ if __name__ == '__main__':
                     pygame.mixer.music.pause()
                 pygame.mixer.music.unpause()
         fpsfps += 1
+        #появление врагов
         if fpsfps == FPS * 5:
             Enemy1(load_image("slime1 _run.png"), 2, 1,
                    400 + random.randint(400, 600) * random.randrange(-1, 2, 2),
@@ -787,6 +802,7 @@ if __name__ == '__main__':
         last_time = int(last_time[:2]) * 60 + int(last_time[3:]) - start_time
         time_first = str(last_time // 60) + ":" + str(last_time % 60)
 
+        #оповещение о повышении сложности
         if last_time % 60 == 0:
             if last_time % 60 != 4:
                 font = pygame.font.Font(None, 35)
